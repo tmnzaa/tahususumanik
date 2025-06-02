@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tahu Susu Manik</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background-color: #fff8d1;
+      color: #5d001e;
+      font-size: 14px;
+    }
+    header {
+      background-color: #ffd54f;
+      padding: 15px;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2em;
+      letter-spacing: 1px;
+    }
+    header p {
+      margin: 5px 0;
+      font-size: 1em;
+      font-weight: 600;
+    }
+    section {
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+    }
+    section h2 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 1.5em;
+      border-bottom: 2px solid #c62828;
+      display: inline-block;
+      padding-bottom: 5px;
+    }
+    .product-card, .testimoni-card, .review-card {
+      background-color: #fff3cd;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+      margin-bottom: 20px;
+      padding: 15px;
+      transition: transform 0.3s;
+    }
+    .product-card:hover, .testimoni-card:hover, .review-card:hover {
+      transform: translateY(-3px);
+    }
+    .product-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    .rating {
+      color: #ffc107;
+      margin: 5px 0;
+    }
+    button {
+      display: block;
+      width: 100%;
+      margin-top: 10px;
+      padding: 8px;
+      font-size: 0.9em;
+      background-color: #c62828;
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #8e0000;
+    }
+    footer {
+      text-align: center;
+      background-color: #ffd54f;
+      padding: 15px;
+      font-size: 0.85em;
+    }
+    footer a {
+      color: #c62828;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .review-form input, .review-form select, .review-form textarea {
+      width: 100%;
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 10px;
+      border: 1px solid #c62828;
+      font-size: 0.9em;
+      resize: vertical;
+    }
+    .stars {
+      display: flex;
+      justify-content: center;
+      margin: 12px 0;
+      cursor: pointer;
+    }
+    .stars span {
+      font-size: 2em;
+      color: #ccc;
+      padding: 0 6px;
+      transition: color 0.3s;
+      user-select: none;
+    }
+    .stars span.hover,
+    .stars span.selected {
+      color: #c62828;
+    }
+  </style>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyChQ26BLRY_ugDR_YIkuCTREtO6juxNGh4",
+      authDomain: "tahususumanik.firebaseapp.com",
+      databaseURL: "https://tahususumanik-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "tahususumanik",
+      storageBucket: "tahususumanik.appspot.com",
+      messagingSenderId: "1026607233900",
+      appId: "1:1026607233900:web:1fb44550ca0ef932d21149",
+      measurementId: "G-R7FN7NSRGH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderReviews();
+      updateStars(0);
+    });
+
+    const stars = document.querySelectorAll('#star-rating span');
+    const ratingInput = document.getElementById('rating');
+    let selectedRating = 0;
+
+    function updateStars(rating) {
+      stars.forEach(star => {
+        const val = parseInt(star.getAttribute('data-value'));
+        if (val <= rating) {
+          star.textContent = '★';
+          star.classList.add('selected');
+        } else {
+          star.textContent = '☆';
+          star.classList.remove('selected');
+        }
+      });
+      ratingInput.value = rating;
+      selectedRating = rating;
+    }
+
+    stars.forEach(star => {
+      star.addEventListener('mouseover', () => {
+        const val = parseInt(star.getAttribute('data-value'));
+        stars.forEach(s => {
+          const v = parseInt(s.getAttribute('data-value'));
+          s.textContent = v <= val ? '★' : '☆';
+        });
+      });
+      star.addEventListener('mouseout', () => {
+        updateStars(selectedRating);
+      });
+      star.addEventListener('click', () => {
+        const val = parseInt(star.getAttribute('data-value'));
+        updateStars(val);
+      });
+    });
+
+    window.addReview = function (e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const rating = parseInt(document.getElementById('rating').value);
+      const comment = document.getElementById('comment').value.trim();
+
+      if (!rating || rating < 1 || rating > 5) {
+        alert('Silakan pilih rating bintang.');
+        return;
+      }
+      if (!name || !comment) {
+        alert('Silakan isi nama dan ulasan.');
+        return;
+      }
+
+      push(ref(db, 'reviews'), { name, rating, comment })
+        .then(() => {
+          document.getElementById('name').value = '';
+          document.getElementById('rating').value = '';
+          document.getElementById('comment').value = '';
+          updateStars(0);
+        })
+        .catch(err => {
+          console.error('Error saving review:', err);
+          alert('Gagal menyimpan ulasan, coba lagi.');
+        });
+    };
+
+    function renderReviews() {
+      const list = document.getElementById('testimoni-list');
+      const reviewsRef = ref(db, 'reviews');
+      onValue(reviewsRef, snapshot => {
+        const data = snapshot.val();
+        if (!data) {
+          list.innerHTML = '<p style="text-align:center;color:#a05;">Belum ada ulasan, yuk jadi yang pertama!</p>';
+          return;
+        }
+
+        list.innerHTML = '';
+        Object.values(data).forEach(r => {
+          const div = document.createElement('div');
+          div.className = 'review-card';
+          div.innerHTML = `
+            <h4>${escapeHtml(r.name)}</h4>
+            <div class="rating" style="font-size:1.3em;color:#c62828;">${ratingToStars(r.rating)}</div>
+            <p>${escapeHtml(r.comment)}</p>
+          `;
+          list.appendChild(div);
+        });
+      });
+    }
+
+    function ratingToStars(rating) {
+      let starsStr = '';
+      for(let i=1; i<=5; i++) {
+        starsStr += i <= rating ? '★' : '☆';
+      }
+      return starsStr;
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/[&<>"']/g, function(m) {
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
+      });
+    }
+
+    window.order = function (link) {
+      window.open(link, '_blank');
+    };
+  </script>
+</head>
+<body>
+
+<header>
+  <h1>Tahu Susu Manik</h1>
+  <p>Rasa Legendaris, Pesan di GoFood Sekarang!</p>
+</header>
+
+<section>
+  <h2>Kenapa Kami?</h2>
+  <p style="text-align: center;">
+    Karena kami bukan sekadar jualan tahu — kami jualan <strong>senyum & kebahagiaan</strong>!
+    Lembut di luar, gurih di dalam. Mau nyoba? 😋
+  </p>
+</section>
+
+<section>
+  <h2>Menu Unggulan</h2>
+
+  <div class="product-card">
+    <img src="https://via.placeholder.com/400x300.png?text=Tahu+Susu" alt="Tahu Susu" />
+    <h3>Tahu Susu</h3>
+    <div class="rating">⭐⭐⭐⭐⭐ (4.9/5)</div>
+    <p>Lembut, gurih, meleleh di mulut. Pesan sekarang sebelum kehabisan!</p>
+    <button onclick="order('https://gofood.link-tahususu')">Pesan di GoFood</button>
+  </div>
+
+  <div class="product-card">
+    <img src="https://via.placeholder.com/400x300.png?text=Kentang+Goreng" alt="Kentang Goreng" />
+    <h3>Kentang Goreng</h3>
+    <div class="rating">⭐⭐⭐⭐ (4.7/5)</div>
+    <p>Garing di luar, lembut di dalam, cocok jadi teman makan tahu!</p>
+    <button onclick="order('https://gofood.link-kentang')">Pesan di GoFood</button>
+  </div>
+
+  <div class="product-card">
+    <img src="https://via.placeholder.com/400x300.png?text=Sosis+Bakar" alt="Sosis Bakar" />
+    <h3>Sosis Bakar</h3>
+    <div class="rating">⭐⭐⭐⭐ (4.6/5)</div>
+    <p>Sosis bakar bumbu spesial, bikin nagih tiap gigitan!</p>
+    <button onclick="order('https://gofood.link-sosis')">Pesan di GoFood</button>
+  </div>
+
+  <div class="product-card">
+    <img src="https://via.placeholder.com/400x300.png?text=Es+Teh" alt="Es Teh" />
+    <h3>Es Teh</h3>
+    <div class="rating">⭐⭐⭐⭐⭐ (4.8/5)</div>
+    <p>Manis segar, pas banget buat nyegerin tenggorokan.</p>
+    <button onclick="order('https://gofood.link-esteh')">Pesan di GoFood</button>
+  </div>
+
+  <div class="product-card">
+    <img src="https://via.placeholder.com/400x300.png?text=Es+Jeruk" alt="Es Jeruk" />
+    <h3>Es Jeruk</h3>
+    <div class="rating">⭐⭐⭐⭐⭐ (4.8/5)</div>
+    <p>Segar asam manis, cocok banget diminum siang-siang.</p>
+    <button onclick="order('https://gofood.link-esjeruk')">Pesan di GoFood</button>
+  </div>
+
+</section>
+
+<section>
+  <h2>Testimoni Sek Rwkkkkkk</h2>
+  <div id="testimoni-list"></div>
+</section>
+
+<section>
+  <h2>Berikan Ulasan & Rating Kamu</h2>
+  <form class="review-form" onsubmit="addReview(event)">
+    <input type="text" id="name" placeholder="Nama kamu" required />
+    <div class="stars" id="star-rating">
+      <span data-value="1">☆</span>
+      <span data-value="2">☆</span>
+      <span data-value="3">☆</span>
+      <span data-value="4">☆</span>
+      <span data-value="5">☆</span>
+    </div>
+    <input type="hidden" id="rating" required />
+    <textarea id="comment" rows="3" placeholder="Tulis ulasanmu di sini..." required></textarea>
+    <button type="submit">Kirim Ulasan</button>
+  </form>
+</section>
+
+<footer>
+  📱 Admin: <a href="https://wa.me/628123456789">+62 812-3456-789</a> |
+  📸 IG: <a href="https://instagram.com/tahususumanik">@tahususumanik</a><br />
+  &copy; 2025 Tahu Susu Manik. Semua hak dilindungi.
+</footer>
+
+</body>
+</html>
