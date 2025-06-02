@@ -48,6 +48,7 @@
       margin-bottom: 20px;
       padding: 15px;
       transition: transform 0.3s;
+      cursor: pointer;
     }
     .product-card:hover, .testimoni-card:hover, .review-card:hover {
       transform: translateY(-3px);
@@ -115,8 +116,56 @@
     .stars span.selected {
       color: #c62828;
     }
-  </style>
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #fff;
+      border-radius: 15px;
+      padding: 20px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      position: relative;
+    }
+    .modal-content img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    .close-btn {
+      position: absolute;
+      top: 10px; right: 15px;
+      font-size: 1.5em;
+      cursor: pointer;
+      color: #c62828;
+    }
+    .product-card {
+    position: relative; /* Supaya bintang bisa posisi absolut relatif ke kartu */
+    }
 
+    .favorite-star {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      color: #c62828; /* Merah maroon */
+      font-size: 1.5em;
+      pointer-events: none; /* Biar nggak ganggu klik tombol */
+      user-select: none;
+      filter: drop-shadow(0 0 2px rgba(0,0,0,0.3));
+    }
+
+  </style>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
     import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
@@ -242,73 +291,84 @@
       });
     }
 
-    window.order = function (link) {
-      window.open(link, '_blank');
+    window.showDetail = function(title, desc, img, link) {
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-desc').textContent = desc;
+      document.getElementById('modal-img').src = img;
+      document.getElementById('modal-order').onclick = () => window.open(link, '_blank');
+      document.getElementById('modal').style.display = 'flex';
+    };
+
+    window.closeModal = function() {
+      document.getElementById('modal').style.display = 'none';
     };
   </script>
 </head>
 <body>
 
 <header>
-  <h1>Tahu Susu Manik</h1>
-  <p>Rasa Legendaris, Pesan di GoFood Sekarang!</p>
+  <h1>Assa Food 99</h1>
+  <p>Rasa Maknyusss, Pesan di GoFood Sekarang!</p>
 </header>
 
 <section>
-  <h2>Kenapa Kami?</h2>
+  <h2>Kenapa Assa Food 99?</h2>
   <p style="text-align: center;">
-    Karena kami bukan sekadar jualan tahu — kami jualan <strong>senyum & kebahagiaan</strong>!
+    Karena kami bukan sekedar jualan — kami jualan <strong>senyum & kebahagiaan</strong>!
     Lembut di luar, gurih di dalam. Mau nyoba? 😋
   </p>
 </section>
 
 <section>
-  <h2>Menu Unggulan</h2>
+  <h2>Menu</h2>
 
-  <div class="product-card">
+  <div class="product-card" onclick="showDetail('Tahu Susu', 'Lembut di luar, gurih di dalam...', 'https://via.placeholder.com/400x300.png?text=Tahu+Susu', 'https://gofood.link-tahususu')">
+    <span class="favorite-star">★</span>
     <img src="https://via.placeholder.com/400x300.png?text=Tahu+Susu" alt="Tahu Susu" />
     <h3>Tahu Susu</h3>
     <div class="rating">⭐⭐⭐⭐⭐ (4.9/5)</div>
     <p>Lembut, gurih, meleleh di mulut. Pesan sekarang sebelum kehabisan!</p>
-    <button onclick="order('https://gofood.link-tahususu')">Pesan di GoFood</button>
+    <button onclick="event.stopPropagation(); order('https://gofood.link-tahususu')">Pesan di GoFood</button>
   </div>
 
-  <div class="product-card">
+
+  <div class="product-card" onclick="showDetail('Kentang Goreng', 'Garingggggg di luar, lembut di dalam, cocok jadi teman makan tahu!', 'https://via.placeholder.com/400x300.png?text=Kentang+Goreng', 'https://gofood.link-kentang')">
     <img src="https://via.placeholder.com/400x300.png?text=Kentang+Goreng" alt="Kentang Goreng" />
     <h3>Kentang Goreng</h3>
     <div class="rating">⭐⭐⭐⭐ (4.7/5)</div>
-    <p>Garing di luar, lembut di dalam, cocok jadi teman makan tahu!</p>
-    <button onclick="order('https://gofood.link-kentang')">Pesan di GoFood</button>
+    <p>Garing di luarrrr, lembut di dalam, cocok jadi teman makan tahu!</p>
+    <button onclick="event.stopPropagation(); order('https://gofood.link-kentang')">Pesan di GoFood</button>
   </div>
 
-  <div class="product-card">
-    <img src="https://via.placeholder.com/400x300.png?text=Sosis+Bakar" alt="Sosis Bakar" />
-    <h3>Sosis Bakar</h3>
-    <div class="rating">⭐⭐⭐⭐ (4.6/5)</div>
-    <p>Sosis bakar bumbu spesial, bikin nagih tiap gigitan!</p>
-    <button onclick="order('https://gofood.link-sosis')">Pesan di GoFood</button>
-  </div>
+  <div class="product-card" onclick="showDetail('Sosis Bakar', 'Sosis besar, smoky, gurih, dibakar sempurna! Cocok untuk camilan sore.', 'https://via.placeholder.com/400x300.png?text=Sosis+Bakar', 'https://gofood.link-sosis')">
+  <img src="https://via.placeholder.com/400x300.png?text=Sosis+Bakar" alt="Sosis Bakar" />
+  <h3>Sosis Bakar</h3>
+  <div class="rating">⭐⭐⭐⭐ (4.6/5)</div>
+  <p>Sosis besar, smoky, gurih, dibakar sempurna! Cocok untuk camilan sore.</p>
+  <button onclick="event.stopPropagation(); order('https://gofood.link-sosis')">Pesan di GoFood</button>
+</div>
 
-  <div class="product-card">
-    <img src="https://via.placeholder.com/400x300.png?text=Es+Teh" alt="Es Teh" />
-    <h3>Es Teh</h3>
-    <div class="rating">⭐⭐⭐⭐⭐ (4.8/5)</div>
-    <p>Manis segar, pas banget buat nyegerin tenggorokan.</p>
-    <button onclick="order('https://gofood.link-esteh')">Pesan di GoFood</button>
-  </div>
+<div class="product-card" onclick="showDetail('Es Teh', 'Segar, manis, dingin, pas banget buat ngilangin dahaga!', 'https://via.placeholder.com/400x300.png?text=Es+Teh', 'https://gofood.link-esteh')">
+  <img src="https://via.placeholder.com/400x300.png?text=Es+Teh" alt="Es Teh" />
+  <h3>Es Teh</h3>
+  <div class="rating">⭐⭐⭐⭐⭐ (4.8/5)</div>
+  <p>Segar, manis, dingin, pas banget buat ngilangin dahaga!</p>
+  <button onclick="event.stopPropagation(); order('https://gofood.link-esteh')">Pesan di GoFood</button>
+</div>
 
-  <div class="product-card">
-    <img src="https://via.placeholder.com/400x300.png?text=Es+Jeruk" alt="Es Jeruk" />
-    <h3>Es Jeruk</h3>
-    <div class="rating">⭐⭐⭐⭐⭐ (4.8/5)</div>
-    <p>Segar asam manis, cocok banget diminum siang-siang.</p>
-    <button onclick="order('https://gofood.link-esjeruk')">Pesan di GoFood</button>
-  </div>
+<div class="product-card" onclick="showDetail('Es Jeruk', 'Perasan jeruk asli, manis-asam segar, bikin melek seharian!', 'https://via.placeholder.com/400x300.png?text=Es+Jeruk', 'https://gofood.link-esjeruk')">
+  <img src="https://via.placeholder.com/400x300.png?text=Es+Jeruk" alt="Es Jeruk" />
+  <h3>Es Jeruk</h3>
+  <div class="rating">⭐⭐⭐⭐ (4.5/5)</div>
+  <p>Perasan jeruk asli, manis-asam segar, bikin melek seharian!</p>
+  <button onclick="event.stopPropagation(); order('https://gofood.link-esjeruk')">Pesan di GoFood</button>
+</div>
+
 
 </section>
 
 <section>
-  <h2>Testimoni Sek Rwkkkkkk</h2>
+  <h2>Testimoni Kami</h2>
   <div id="testimoni-list"></div>
 </section>
 
@@ -332,8 +392,19 @@
 <footer>
   📱 Admin: <a href="https://wa.me/628123456789">+62 812-3456-789</a> |
   📸 IG: <a href="https://instagram.com/tahususumanik">@tahususumanik</a><br />
-  &copy; 2025 Tahu Susu Manik. Semua hak dilindungi.
+  &copy; 2025 AssaFood99. Semua hak dilindungi.
 </footer>
+
+<!-- Modal -->
+<div class="modal" id="modal" onclick="closeModal()">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <span class="close-btn" onclick="closeModal()">×</span>
+    <img id="modal-img" src="" alt="" />
+    <h3 id="modal-title"></h3>
+    <p id="modal-desc"></p>
+    <button id="modal-order">Pesan di GoFood</button>
+  </div>
+</div>
 
 </body>
 </html>
