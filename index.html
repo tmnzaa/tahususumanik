@@ -2,409 +2,189 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
+  <title>Kasir Assa Food</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tahu Susu Manik</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-      background-color: #fff8d1;
-      color: #5d001e;
-      font-size: 14px;
-    }
-    header {
-      background-color: #ffd54f;
-      padding: 15px;
-      text-align: center;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 2em;
-      letter-spacing: 1px;
-    }
-    header p {
-      margin: 5px 0;
-      font-size: 1em;
-      font-weight: 600;
-    }
-    section {
-      max-width: 600px;
-      margin: auto;
-      padding: 20px;
-    }
-    section h2 {
-      text-align: center;
-      margin-bottom: 10px;
-      font-size: 1.5em;
-      border-bottom: 2px solid #c62828;
-      display: inline-block;
-      padding-bottom: 5px;
-    }
-    .product-card, .testimoni-card, .review-card {
-      background-color: #fff3cd;
-      border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      overflow: hidden;
-      margin-bottom: 20px;
-      padding: 15px;
-      transition: transform 0.3s;
-      cursor: pointer;
-    }
-    .product-card:hover, .testimoni-card:hover, .review-card:hover {
-      transform: translateY(-3px);
-    }
-    .product-card img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-      border-radius: 10px;
-    }
-    .rating {
-      color: #ffc107;
-      margin: 5px 0;
-    }
-    button {
-      display: block;
-      width: 100%;
-      margin-top: 10px;
-      padding: 8px;
-      font-size: 0.9em;
-      background-color: #c62828;
-      color: #fff;
-      border: none;
-      border-radius: 30px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    button:hover {
-      background-color: #8e0000;
-    }
-    footer {
-      text-align: center;
-      background-color: #ffd54f;
-      padding: 15px;
-      font-size: 0.85em;
-    }
-    footer a {
-      color: #c62828;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    .review-form input, .review-form select, .review-form textarea {
-      width: 100%;
-      padding: 8px;
-      margin: 5px 0;
-      border-radius: 10px;
-      border: 1px solid #c62828;
-      font-size: 0.9em;
-      resize: vertical;
-    }
-    .stars {
-      display: flex;
-      justify-content: center;
-      margin: 12px 0;
-      cursor: pointer;
-    }
-    .stars span {
-      font-size: 2em;
-      color: #ccc;
-      padding: 0 6px;
-      transition: color 0.3s;
-      user-select: none;
-    }
-    .stars span.hover,
-    .stars span.selected {
-      color: #c62828;
-    }
-    /* Modal styles */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 10;
-      left: 0; top: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      justify-content: center;
-      align-items: center;
-    }
-    .modal-content {
-      background: #fff;
-      border-radius: 15px;
-      padding: 20px;
-      width: 90%;
-      max-width: 400px;
-      text-align: center;
-      position: relative;
-    }
-    .modal-content img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      border-radius: 10px;
-      margin-bottom: 10px;
-    }
-    .close-btn {
-      position: absolute;
-      top: 10px; right: 15px;
-      font-size: 1.5em;
-      cursor: pointer;
-      color: #c62828;
-    }
-    .product-card {
-    position: relative; /* Supaya bintang bisa posisi absolut relatif ke kartu */
-    }
-
-    .favorite-star {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      color: #c62828; /* Merah maroon */
-      font-size: 1.5em;
-      pointer-events: none; /* Biar nggak ganggu klik tombol */
-      user-select: none;
-      filter: drop-shadow(0 0 2px rgba(0,0,0,0.3));
-    }
-
+    body { padding-bottom: 80px; }
+    .active-tab { color: #dc2626; font-weight: bold; }
+    .hidden-tab { display: none; }
   </style>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyChQ26BLRY_ugDR_YIkuCTREtO6juxNGh4",
-      authDomain: "tahususumanik.firebaseapp.com",
-      databaseURL: "https://tahususumanik-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "tahususumanik",
-      storageBucket: "tahususumanik.appspot.com",
-      messagingSenderId: "1026607233900",
-      appId: "1:1026607233900:web:1fb44550ca0ef932d21149",
-      measurementId: "G-R7FN7NSRGH"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    window.addEventListener('DOMContentLoaded', () => {
-      renderReviews();
-      updateStars(0);
-    });
-
-    const stars = document.querySelectorAll('#star-rating span');
-    const ratingInput = document.getElementById('rating');
-    let selectedRating = 0;
-
-    function updateStars(rating) {
-      stars.forEach(star => {
-        const val = parseInt(star.getAttribute('data-value'));
-        if (val <= rating) {
-          star.textContent = '★';
-          star.classList.add('selected');
-        } else {
-          star.textContent = '☆';
-          star.classList.remove('selected');
-        }
-      });
-      ratingInput.value = rating;
-      selectedRating = rating;
-    }
-
-    stars.forEach(star => {
-      star.addEventListener('mouseover', () => {
-        const val = parseInt(star.getAttribute('data-value'));
-        stars.forEach(s => {
-          const v = parseInt(s.getAttribute('data-value'));
-          s.textContent = v <= val ? '★' : '☆';
-        });
-      });
-      star.addEventListener('mouseout', () => {
-        updateStars(selectedRating);
-      });
-      star.addEventListener('click', () => {
-        const val = parseInt(star.getAttribute('data-value'));
-        updateStars(val);
-      });
-    });
-
-    window.addReview = function (e) {
-      e.preventDefault();
-      const name = document.getElementById('name').value.trim();
-      const rating = parseInt(document.getElementById('rating').value);
-      const comment = document.getElementById('comment').value.trim();
-
-      if (!rating || rating < 1 || rating > 5) {
-        alert('Silakan pilih rating bintang.');
-        return;
-      }
-      if (!name || !comment) {
-        alert('Silakan isi nama dan ulasan.');
-        return;
-      }
-
-      push(ref(db, 'reviews'), { name, rating, comment })
-        .then(() => {
-          document.getElementById('name').value = '';
-          document.getElementById('rating').value = '';
-          document.getElementById('comment').value = '';
-          updateStars(0);
-        })
-        .catch(err => {
-          console.error('Error saving review:', err);
-          alert('Gagal menyimpan ulasan, coba lagi.');
-        });
-    };
-
-    function renderReviews() {
-      const list = document.getElementById('testimoni-list');
-      const reviewsRef = ref(db, 'reviews');
-      onValue(reviewsRef, snapshot => {
-        const data = snapshot.val();
-        if (!data) {
-          list.innerHTML = '<p style="text-align:center;color:#a05;">Belum ada ulasan, yuk jadi yang pertama!</p>';
-          return;
-        }
-
-        list.innerHTML = '';
-        Object.values(data).forEach(r => {
-          const div = document.createElement('div');
-          div.className = 'review-card';
-          div.innerHTML = `
-            <h4>${escapeHtml(r.name)}</h4>
-            <div class="rating" style="font-size:1.3em;color:#c62828;">${ratingToStars(r.rating)}</div>
-            <p>${escapeHtml(r.comment)}</p>
-          `;
-          list.appendChild(div);
-        });
-      });
-    }
-
-    function ratingToStars(rating) {
-      let starsStr = '';
-      for(let i=1; i<=5; i++) {
-        starsStr += i <= rating ? '★' : '☆';
-      }
-      return starsStr;
-    }
-
-    function escapeHtml(text) {
-      return text.replace(/[&<>"']/g, function(m) {
-        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
-      });
-    }
-
-    window.showDetail = function(title, desc, img, link) {
-      document.getElementById('modal-title').textContent = title;
-      document.getElementById('modal-desc').textContent = desc;
-      document.getElementById('modal-img').src = img;
-      document.getElementById('modal-order').onclick = () => window.open(link, '_blank');
-      document.getElementById('modal').style.display = 'flex';
-    };
-
-    window.closeModal = function() {
-      document.getElementById('modal').style.display = 'none';
-    };
-  </script>
 </head>
-<body>
+<body class="bg-gray-100 text-gray-800">
 
-<header>
-  <h1>Assa Food 99</h1>
-  <p>Rasa Maknyusss, Pesan di GoFood Sekarang!</p>
-</header>
+  <!-- Navbar Bawah -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around items-center py-2 shadow z-50 text-sm">
+    <button onclick="showTab('home')" id="tab-home" class="flex flex-col items-center active-tab">
+      🏠<span>Home</span>
+    </button>
+    <button onclick="showTab('rekap')" id="tab-rekap" class="flex flex-col items-center">
+      📊<span>Rekap</span>
+    </button>
+  </nav>
 
-<section>
-  <h2>Kenapa Assa Food 99?</h2>
-  <p style="text-align: center;">
-    Karena kami bukan sekedar jualan — kami jualan <strong>senyum & kebahagiaan</strong>!
-    Lembut di luar, gurih di dalam. Mau nyoba? 😋
-  </p>
-</section>
-
-<section>
-  <h2>Menu</h2>
-
-  <div class="product-card" onclick="showDetail('Tahu Susu', 'Lembut di luar, gurih di dalam...', 'https://via.placeholder.com/400x300.png?text=Tahu+Susu', 'https://gofood.link-tahususu')">
-    <span class="favorite-star">★</span>
-    <img src="https://via.placeholder.com/400x300.png?text=Tahu+Susu" alt="Tahu Susu" />
-    <h3>Tahu Susu</h3>
-    <div class="rating">⭐⭐⭐⭐⭐ (4.9/5)</div>
-    <p>Lembut, gurih, meleleh di mulut. Pesan sekarang sebelum kehabisan!</p>
-    <button onclick="event.stopPropagation(); order('https://gofood.link-tahususu')">Pesan di GoFood</button>
-  </div>
-
-
-  <div class="product-card" onclick="showDetail('Kentang Goreng', 'Garingggggg di luar, lembut di dalam, cocok jadi teman makan tahu!', 'https://via.placeholder.com/400x300.png?text=Kentang+Goreng', 'https://gofood.link-kentang')">
-    <img src="https://via.placeholder.com/400x300.png?text=Kentang+Goreng" alt="Kentang Goreng" />
-    <h3>Kentang Goreng</h3>
-    <div class="rating">⭐⭐⭐⭐ (4.7/5)</div>
-    <p>Garing di luarrrr, lembut di dalam, cocok jadi teman makan tahu!</p>
-    <button onclick="event.stopPropagation(); order('https://gofood.link-kentang')">Pesan di GoFood</button>
-  </div>
-
-  <div class="product-card" onclick="showDetail('Sosis Bakar', 'Sosis besar, smoky, gurih, dibakar sempurna! Cocok untuk camilan sore.', 'https://via.placeholder.com/400x300.png?text=Sosis+Bakar', 'https://gofood.link-sosis')">
-  <img src="https://via.placeholder.com/400x300.png?text=Sosis+Bakar" alt="Sosis Bakar" />
-  <h3>Sosis Bakar</h3>
-  <div class="rating">⭐⭐⭐⭐ (4.6/5)</div>
-  <p>Sosis besar, smoky, gurih, dibakar sempurna! Cocok untuk camilan sore.</p>
-  <button onclick="event.stopPropagation(); order('https://gofood.link-sosis')">Pesan di GoFood</button>
-</div>
-
-<div class="product-card" onclick="showDetail('Es Teh', 'Segar, manis, dingin, pas banget buat ngilangin dahaga!', 'https://via.placeholder.com/400x300.png?text=Es+Teh', 'https://gofood.link-esteh')">
-  <img src="https://via.placeholder.com/400x300.png?text=Es+Teh" alt="Es Teh" />
-  <h3>Es Teh</h3>
-  <div class="rating">⭐⭐⭐⭐⭐ (4.8/5)</div>
-  <p>Segar, manis, dingin, pas banget buat ngilangin dahaga!</p>
-  <button onclick="event.stopPropagation(); order('https://gofood.link-esteh')">Pesan di GoFood</button>
-</div>
-
-<div class="product-card" onclick="showDetail('Es Jeruk', 'Perasan jeruk asli, manis-asam segar, bikin melek seharian!', 'https://via.placeholder.com/400x300.png?text=Es+Jeruk', 'https://gofood.link-esjeruk')">
-  <img src="https://via.placeholder.com/400x300.png?text=Es+Jeruk" alt="Es Jeruk" />
-  <h3>Es Jeruk</h3>
-  <div class="rating">⭐⭐⭐⭐ (4.5/5)</div>
-  <p>Perasan jeruk asli, manis-asam segar, bikin melek seharian!</p>
-  <button onclick="event.stopPropagation(); order('https://gofood.link-esjeruk')">Pesan di GoFood</button>
-</div>
-
-
-</section>
-
-<section>
-  <h2>Testimoni Kami</h2>
-  <div id="testimoni-list"></div>
-</section>
-
-<section>
-  <h2>Berikan Ulasan & Rating Kamu</h2>
-  <form class="review-form" onsubmit="addReview(event)">
-    <input type="text" id="name" placeholder="Nama kamu" required />
-    <div class="stars" id="star-rating">
-      <span data-value="1">☆</span>
-      <span data-value="2">☆</span>
-      <span data-value="3">☆</span>
-      <span data-value="4">☆</span>
-      <span data-value="5">☆</span>
+  <!-- HOME -->
+  <section id="home-tab" class="p-4">
+    <h1 class="text-2xl font-bold mb-4 text-red-600">Pilih Produk</h1>
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <div onclick="addToCart('Tahu Susu Coba Coba',8000)" class="bg-white p-3 rounded shadow hover:bg-red-100 cursor-pointer">Tahu Coba - 8K</div>
+      <div onclick="addToCart('Tahu Susu Pacaran',25000)" class="bg-white p-3 rounded shadow hover:bg-red-100 cursor-pointer">Tahu Pacaran - 25K</div>
+      <div onclick="addToCart('Tahu Susu Jumbo',35000)" class="bg-white p-3 rounded shadow hover:bg-red-100 cursor-pointer">Tahu Jumbo - 35K</div>
+      <div onclick="addToCart('Kentang Goreng',8000)" class="bg-white p-3 rounded shadow hover:bg-red-100 cursor-pointer">Kentang - 8K</div>
+      <div onclick="addToCart('Sosis Jumbo Ori',8000)" class="bg-white p-3 rounded shadow hover:bg-red-100 cursor-pointer">Sosis Ori - 8K</div>
+      <div onclick="addToCart('Sosis Jumbo Keju',10000)" class="bg-white p-3 rounded shadow hover:bg-red-100 cursor-pointer">Sosis Keju - 10K</div>
     </div>
-    <input type="hidden" id="rating" required />
-    <textarea id="comment" rows="3" placeholder="Tulis ulasanmu di sini..." required></textarea>
-    <button type="submit">Kirim Ulasan</button>
-  </form>
-</section>
 
-<footer>
-  📱 Admin: <a href="https://wa.me/628123456789">+62 812-3456-789</a> |
-  📸 IG: <a href="https://instagram.com/tahususumanik">@tahususumanik</a><br />
-  &copy; 2025 AssaFood99. Semua hak dilindungi.
-</footer>
+    <div class="bg-white rounded p-4 shadow">
+      <h2 class="text-lg font-bold mb-2">🛒 Keranjang</h2>
+      <div id="cartList" class="mb-2"></div>
+      <div class="font-bold text-right">Total: Rp <span id="totalHarga">0</span></div>
 
-<!-- Modal -->
-<div class="modal" id="modal" onclick="closeModal()">
-  <div class="modal-content" onclick="event.stopPropagation()">
-    <span class="close-btn" onclick="closeModal()">×</span>
-    <img id="modal-img" src="" alt="" />
-    <h3 id="modal-title"></h3>
-    <p id="modal-desc"></p>
-    <button id="modal-order">Pesan di GoFood</button>
-  </div>
-</div>
+      <div class="mt-4">
+        <label class="block text-sm font-semibold mb-1">💸 Uang Pembeli</label>
+        <input type="text" id="uangPembeli" class="w-full border rounded p-2 mb-2" placeholder="Masukkan uang">
+        <div class="text-right text-green-600 font-semibold">Kembalian: Rp <span id="kembalian">0</span></div>
+      </div>
 
+      <button onclick="simpanTransaksi()" class="mt-3 w-full bg-green-600 text-white py-2 rounded">Simpan Transaksi</button>
+    </div>
+  </section>
+
+  <!-- REKAP -->
+  <section id="rekap-tab" class="p-4 hidden-tab">
+    <h1 class="text-2xl font-bold mb-4 text-red-600">📊 Rekap Hari Ini</h1>
+    <div class="space-y-4" id="rekapList"></div>
+    <button onclick="resetRekap()" class="mt-6 w-full bg-red-600 text-white py-2 rounded">Reset Rekap</button>
+  </section>
+
+  <script>
+    let cart = {};
+
+    function formatRupiah(n) {
+      return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    function unformatRupiah(str) {
+      return parseInt(str.replace(/\./g, '')) || 0;
+    }
+
+    function todayKey() {
+      const t = new Date();
+      return `rekap-${t.getFullYear()}-${t.getMonth() + 1}-${t.getDate()}`;
+    }
+
+    function addToCart(nama, harga) {
+      if (!cart[nama]) cart[nama] = { qty: 1, harga };
+      else cart[nama].qty += 1;
+      renderCart();
+    }
+
+    function renderCart() {
+      const cartList = document.getElementById("cartList");
+      cartList.innerHTML = "";
+      let total = 0;
+
+      for (let nama in cart) {
+        const item = cart[nama];
+        const subtotal = item.qty * item.harga;
+        total += subtotal;
+        cartList.innerHTML += `
+          <div class="flex justify-between mb-1 items-center">
+            <div>${nama} <span class="text-sm text-gray-500">x ${item.qty}</span></div>
+            <div>
+              <button onclick="updateQty('${nama}', -1)" class="bg-red-500 text-white px-2 rounded">−</button>
+              <button onclick="updateQty('${nama}', 1)" class="bg-green-500 text-white px-2 rounded">+</button>
+            </div>
+          </div>`;
+      }
+
+      document.getElementById("totalHarga").textContent = formatRupiah(total);
+      const uang = unformatRupiah(document.getElementById("uangPembeli").value || "0");
+      const kembalian = uang - total;
+      document.getElementById("kembalian").textContent = formatRupiah(kembalian >= 0 ? kembalian : 0);
+    }
+
+    function updateQty(nama, delta) {
+      cart[nama].qty += delta;
+      if (cart[nama].qty <= 0) delete cart[nama];
+      renderCart();
+    }
+
+    function simpanTransaksi() {
+      let total = 0, itemCount = 0;
+      const produk = [];
+
+      for (let nama in cart) {
+        const item = cart[nama];
+        total += item.qty * item.harga;
+        itemCount += item.qty;
+        produk.push(`${nama} x ${item.qty}`);
+      }
+
+      const now = new Date();
+      const tanggal = now.toLocaleDateString("id-ID");
+      const jam = now.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
+
+      const transaksi = {
+        waktu: `${tanggal} ${jam}`,
+        total,
+        item: itemCount,
+        produk
+      };
+
+      const key = todayKey();
+      const data = JSON.parse(localStorage.getItem(key)) || [];
+      data.push(transaksi);
+      localStorage.setItem(key, JSON.stringify(data));
+
+      cart = {};
+      document.getElementById("uangPembeli").value = '';
+      document.getElementById("kembalian").textContent = '0';
+      renderCart();
+      updateRekap();
+      alert("✅ Transaksi disimpan!");
+    }
+
+    function updateRekap() {
+      const key = todayKey();
+      const data = JSON.parse(localStorage.getItem(key)) || [];
+      const list = document.getElementById("rekapList");
+      list.innerHTML = data.reverse().map((t, i) => `
+        <div class="bg-white p-4 rounded shadow">
+          <p class="text-sm text-gray-500">#${data.length - i} | ${t.waktu}</p>
+          <p>🧾 Total: <strong>Rp ${formatRupiah(t.total)}</strong></p>
+          <p>📦 Item: <strong>${t.item}</strong></p>
+          <p class="mt-1 text-sm text-gray-700">🍽️ Makanan:</p>
+          <ul class="list-disc ml-5 text-sm text-gray-700">
+            ${t.produk.map(p => `<li>${p}</li>`).join('')}
+          </ul>
+        </div>
+      `).join('');
+    }
+
+    function resetRekap() {
+      if (confirm("Yakin ingin reset rekap hari ini?")) {
+        localStorage.removeItem(todayKey());
+        updateRekap();
+      }
+    }
+
+    function showTab(tab) {
+      ['home', 'rekap'].forEach(id => {
+        document.getElementById(`${id}-tab`).classList.add('hidden-tab');
+        document.getElementById(`tab-${id}`).classList.remove('active-tab');
+      });
+      document.getElementById(`${tab}-tab`).classList.remove('hidden-tab');
+      document.getElementById(`tab-${tab}`).classList.add('active-tab');
+    }
+
+    document.getElementById("uangPembeli").addEventListener("input", function (e) {
+      const val = e.target.value.replace(/\D/g, '');
+      e.target.value = formatRupiah(val);
+      renderCart();
+    });
+
+    updateRekap();
+  </script>
 </body>
 </html>
