@@ -78,6 +78,11 @@
     <button onclick="resetRekap()" class="mt-6 w-full bg-red-600 text-white py-2 rounded">Reset Rekap</button>
   </section>
 
+  <!-- Notifikasi -->
+  <div id="notifikasi" class="fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded shadow-md hidden transition-all duration-300 z-50">
+    Notifikasi
+  </div>
+
   <script>
     let cart = {};
     let produkList = JSON.parse(localStorage.getItem("produkList")) || [
@@ -157,6 +162,14 @@
       renderCart();
     }
 
+    function showNotif(pesan, warna = "green") {
+      const notif = document.getElementById("notifikasi");
+      notif.textContent = pesan;
+      notif.className = `fixed bottom-20 left-1/2 transform -translate-x-1/2 bg-${warna}-500 text-white px-4 py-2 rounded shadow-md transition-all duration-300 z-50`;
+      notif.classList.remove("hidden");
+      setTimeout(() => notif.classList.add("hidden"), 3000);
+    }
+
     function simpanTransaksi() {
       let total = 0, itemCount = 0;
       const produk = [];
@@ -179,7 +192,7 @@
       document.getElementById("kembalian").textContent = '0';
       renderCart();
       updateRekap();
-      alert("✅ Transaksi disimpan!");
+      showNotif("✅ Transaksi disimpan!");
     }
 
     function updateRekap() {
@@ -203,6 +216,7 @@
       if (confirm("Yakin ingin reset rekap hari ini?")) {
         localStorage.removeItem(todayKey());
         updateRekap();
+        showNotif("📛 Rekap berhasil direset!", "red");
       }
     }
 
@@ -236,7 +250,7 @@
       const nama = document.getElementById("produkBaruNama").value.trim();
       const harga = parseInt(document.getElementById("produkBaruHarga").value);
       if (!nama || isNaN(harga) || harga <= 0) {
-        alert("⚠️ Isi nama dan harga produk dengan benar.");
+        showNotif("⚠️ Isi nama dan harga dengan benar!", "yellow");
         return;
       }
       produkList.push({ nama, harga });
@@ -245,13 +259,14 @@
       document.getElementById("produkBaruHarga").value = "";
       tutupModal();
       renderProduk();
+      showNotif("✅ Produk berhasil ditambahkan!", "blue");
     }
 
     function hapusProdukDipilih() {
       const checkboxes = document.querySelectorAll("#formHapusProduk input:checked");
       const indices = Array.from(checkboxes).map(cb => parseInt(cb.value));
       if (indices.length === 0) {
-        alert("Tidak ada produk yang dipilih.");
+        showNotif("⚠️ Tidak ada produk dipilih!", "yellow");
         return;
       }
       if (!confirm("Yakin ingin menghapus produk yang dipilih?")) return;
@@ -259,6 +274,7 @@
       localStorage.setItem("produkList", JSON.stringify(produkList));
       tutupModalHapus();
       renderProduk();
+      showNotif("🗑️ Produk berhasil dihapus!", "red");
     }
 
     document.getElementById("uangPembeli").addEventListener("input", function (e) {
