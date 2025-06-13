@@ -57,6 +57,9 @@
   <!-- HOME -->
   <section id="home-tab" class="p-4">
     <h1 class="text-2xl font-bold mb-4 text-red-600">Pilih Produk</h1>
+    <!-- Tempel Pesan WA -->
+<textarea id="waInput" class="w-full border p-2 mb-2 rounded text-sm" rows="3" placeholder="Contoh: tahu susu pacaran 2&#10;sosis jumbo ori 1"></textarea>
+<button onclick="prosesPesanWA()" class="mb-4 w-full bg-blue-600 text-white py-2 rounded">📥 Tambahkan dari WA</button>
     <div class="grid grid-cols-2 gap-3 mb-4" id="produkContainer"></div>
     <div class="bg-white rounded p-4 shadow">
       <h2 class="text-lg font-bold mb-2">🛒 Keranjang</h2>
@@ -285,6 +288,38 @@
 
     renderProduk();
     updateRekap();
+
+    function prosesPesanWA() {
+  const input = document.getElementById("waInput").value.trim().toLowerCase().split("\n");
+  let ditemukan = 0;
+
+  input.forEach(baris => {
+    const match = baris.match(/^(.+?)\s+(\d+)$/); // teks lalu angka
+    if (match) {
+      const namaCari = match[1].trim();
+      const qty = parseInt(match[2]);
+
+      const produk = produkList.find(p => p.nama.toLowerCase().includes(namaCari));
+      if (produk) {
+        if (!cart[produk.nama]) {
+          cart[produk.nama] = { qty: 0, harga: produk.harga };
+        }
+        cart[produk.nama].qty += qty;
+        ditemukan++;
+      }
+    }
+  });
+
+  renderCart();
+
+  if (ditemukan > 0) {
+    alert(`✅ ${ditemukan} produk berhasil ditambahkan dari WA!`);
+    document.getElementById("waInput").value = '';
+  } else {
+    alert("⚠️ Tidak ada produk ditemukan dari pesan WA.");
+  }
+}
+
   </script>
 </body>
 </html>
