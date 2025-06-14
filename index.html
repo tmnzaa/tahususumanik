@@ -14,8 +14,6 @@
 
     .floating-icon {
   position: fixed;
-  top: 24px; /* ganti dari bottom jadi top */
-  right: 24px;
   z-index: 9999;
   background-color: #ffffff;
   border: 2px solid #e2e8f0;
@@ -30,9 +28,11 @@
   transition: all 0.2s ease-in-out;
 }
 
-  .floating-icon:hover {
-    transform: scale(1.08);
-  }
+/* Tambahan opsional hover */
+.floating-icon:hover {
+  transform: scale(1.08);
+}
+
   </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
