@@ -13,22 +13,23 @@
     .hidden-tab { display: none; }
 
     .floating-icon {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 9999;
-    background-color: #ffffff;
-    border: 2px solid #e2e8f0;
-    border-radius: 9999px;
-    width: 52px;
-    height: 52px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    transition: all 0.2s ease-in-out;
-  }
+  position: fixed;
+  top: 24px; /* ganti dari bottom jadi top */
+  right: 24px;
+  z-index: 9999;
+  background-color: #ffffff;
+  border: 2px solid #e2e8f0;
+  border-radius: 9999px;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transition: all 0.2s ease-in-out;
+}
+
   .floating-icon:hover {
     transform: scale(1.08);
   }
